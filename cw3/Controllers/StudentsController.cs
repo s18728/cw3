@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cw3.DAL;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,17 +32,51 @@ namespace cw3.Controllers
         //     return NotFound("Nie znaleziono studenta!");
         // }
 
-        [HttpGet]
-        public string GetStudent(string orderBy)
+        private readonly IDbService _dbService;
+
+        public StudentsController(IDbService dbService)
         {
-            return $"Kowalski, Malewski, Andrzejewski sortowanie={orderBy}";
+            _dbService = dbService;
+        }
+
+        private static List<Student> students = new List<Student>();
+        [HttpGet]
+        public IActionResult GetStudent(string orderBy)
+        {
+            return Ok(_dbService.GetStudents());
         }
 
         [HttpPost]
         public IActionResult CreateStudent(Student student)
         {
             student.IndexNumber = $"s{new Random().Next(1, 20000)}";
+            students.Add(student);
             return Ok(student);
+        }
+
+        [HttpPut]
+        public IActionResult UpdateStudent([FromQuery]int id, [FromBody] Student student)
+        {
+            if (id>=students.Count)
+            {
+                return NotFound();
+            }
+
+            students.RemoveAt(id);
+            students.Insert(id, student);
+            return Ok("Aktualizacja ukonczona");
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteStudent([FromQuery] int id)
+        {
+            if (id >= students.Count)
+            {
+                return NotFound();
+            }
+
+            students.RemoveAt(id);
+            return Ok("Usunieto studenta o id " + id);
         }
     }
 }
