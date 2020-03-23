@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using cw3.DAL;
-using Microsoft.AspNetCore.Http;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using System.Data.SqlClient;
 
 namespace cw3.Controllers
@@ -72,6 +66,35 @@ namespace cw3.Controllers
             }
 
             return Ok(students);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetStudentEnrollments(string id)
+        {
+            List<Enrollment> enrollments = new List<Enrollment>();
+
+            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
+            using (var com = new SqlCommand())
+            {
+                com.Connection = con;
+                com.CommandText = "SELECT * FROM Enrollment INNER JOIN Student ON Enrollment.IdEnrollment = Student.IdEnrollment WHERE Student.IndexNumber = @id";
+                com.Parameters.AddWithValue("id", id);
+
+                con.Open();
+                var dr = com.ExecuteReader();
+                while (dr.Read())
+                {
+                    var en = new Enrollment();
+                    en.IdEnrollment = dr["IdEnrollment"].ToString();
+                    en.Semester = dr["Semester"].ToString();
+                    en.IdStudy = dr["IdStudy"].ToString();
+                    en.StartDate = dr["StartDate"].ToString();
+                    enrollments.Add(en);
+                }
+
+                return Ok(enrollments);
+            }
+
         }
 
         // [HttpPost]
