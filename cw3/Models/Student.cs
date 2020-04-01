@@ -17,7 +17,7 @@ namespace cw3
 
         public string Semester { get; set; }
 
-        public string NameOfStudies { get; set; }
+        public string Studies { get; set; }
 
         public string IndexNumber { get; set; }
     }
