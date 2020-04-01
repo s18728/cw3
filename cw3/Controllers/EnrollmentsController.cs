@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cw3.Models;
 using cw3.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +21,12 @@ namespace cw3.Controllers
 
             return dbService.enrollStudent(student);
         }
-
-        [HttpPost]
+        [HttpPost("promotions")]
+        public IActionResult PromoteSemester([FromBody] StudiesInfo studies, [FromServices] IStudentsDbService dbService)
+        {
+            
+            return Ok();
+        }
 
 
     }

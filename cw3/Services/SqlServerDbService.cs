@@ -18,36 +18,50 @@ namespace cw3.Services
             using (var con = new SqlConnection(sqlCon))
             using (var com = new SqlCommand())
             {
-                com.Connection = con;
-                com.Parameters.AddWithValue("studiesName", student.Studies);
-                var wynik = UseProcedure("checkIfExistsStudies",com);
-                if (wynik.Count == 0) return new BadRequestResult();
+                SqlTransaction sqlT = null;
+                try
+                {
+                    com.Connection = con;
+                    con.Open();
+                    sqlT = con.BeginTransaction();
+                    com.Parameters.AddWithValue("studiesName", student.Studies);
+                    var wynik = UseProcedure("checkIfExistsStudies",com);
+                    if (wynik.Count == 0) return new BadRequestResult();
 
-                com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indexNumber";
-                com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
+                    com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indexNumber";
+                    com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
 
-                var dr = com.ExecuteReader();
-                if (dr.Read()) return  new BadRequestResult();
-                dr.Close();
+                    var dr = com.ExecuteReader();
+                    if (dr.Read()) return  new BadRequestResult();
+                    dr.Close();
 
-                com.CommandText = "DECLARE @datetmp date = PARSE(@bdate as date USING 'en-GB');" +
-                                  " INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment)" +
-                                  " VALUES (@indexNumber, @name, @lname, @datetmp, '1')";
-                com.Parameters.Clear();
-                com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-                com.Parameters.AddWithValue("name", student.FirstName);
-                com.Parameters.AddWithValue("lname", student.LastName);
-                com.Parameters.AddWithValue("bdate", student.BirthDate);
-                com.ExecuteNonQuery();
+                    com.CommandText = "DECLARE @datetmp date = PARSE(@bdate as date USING 'en-GB');" +
+                                      " INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment)" +
+                                      " VALUES (@indexNumber, @name, @lname, @datetmp, '1')";
+                    com.Parameters.Clear();
+                    com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
+                    com.Parameters.AddWithValue("name", student.FirstName);
+                    com.Parameters.AddWithValue("lname", student.LastName);
+                    com.Parameters.AddWithValue("bdate", student.BirthDate);
+                    com.ExecuteNonQuery();
+                    
+                    com.Parameters.Clear();
+                    com.Parameters.AddWithValue("studiesName", student.Studies);
+                    com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
+                    UseProcedure("enrollStudent", com);
+                    sqlT.Commit();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    sqlT.Rollback();
+                    return new BadRequestResult();
+                }
                 
-                com.Parameters.Clear();
-                com.Parameters.AddWithValue("studiesName", student.Studies);
-                com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-                UseProcedure("enrollStudent", com);
 
             }
 
-            return new OkResult();
+            return new StatusCodeResult(201);
         }
 
         public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com)
