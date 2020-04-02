@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw3.Services
@@ -15,6 +12,8 @@ namespace cw3.Services
 
         public IActionResult enrollStudent(Student student)
         {
+            Enrollment enrollment = new Enrollment();
+
             using (var con = new SqlConnection(sqlCon))
             using (var com = new SqlCommand())
             {
@@ -24,15 +23,16 @@ namespace cw3.Services
                     com.Connection = con;
                     con.Open();
                     sqlT = con.BeginTransaction();
+                    com.Transaction = sqlT;
                     com.Parameters.AddWithValue("studiesName", student.Studies);
-                    var wynik = UseProcedure("checkIfExistsStudies",com);
+                    var wynik = UseProcedure("checkIfExistsStudies", com, sqlT);
                     if (wynik.Count == 0) return new BadRequestResult();
 
                     com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indexNumber";
                     com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
 
                     var dr = com.ExecuteReader();
-                    if (dr.Read()) return  new BadRequestResult();
+                    if (dr.Read()) return new BadRequestResult();
                     dr.Close();
 
                     com.CommandText = "DECLARE @datetmp date = PARSE(@bdate as date USING 'en-GB');" +
@@ -44,11 +44,17 @@ namespace cw3.Services
                     com.Parameters.AddWithValue("lname", student.LastName);
                     com.Parameters.AddWithValue("bdate", student.BirthDate);
                     com.ExecuteNonQuery();
-                    
+
                     com.Parameters.Clear();
                     com.Parameters.AddWithValue("studiesName", student.Studies);
                     com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-                    UseProcedure("enrollStudent", com);
+                    wynik = UseProcedure("enrollStudent", com, sqlT);
+
+                    enrollment.IdEnrollment = wynik[0][0];
+                    enrollment.IdStudy = wynik[0][2];
+                    enrollment.Semester = wynik[0][1];
+                    enrollment.StartDate = wynik[0][3];
+
                     sqlT.Commit();
                 }
                 catch (Exception e)
@@ -57,42 +63,41 @@ namespace cw3.Services
                     sqlT.Rollback();
                     return new BadRequestResult();
                 }
-                
-
             }
 
-            return new StatusCodeResult(201);
+            ObjectResult objectResult = new ObjectResult(enrollment);
+            objectResult.StatusCode = 201;
+            return objectResult;
         }
 
-        public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com)
+
+
+        public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com, SqlTransaction sqlT)
         {
             List<string[]> wynik = new List<string[]>();
-            
+
+            com.CommandType = CommandType.StoredProcedure;
+            com.CommandText = nameOfProcedure;
+            if (com.Connection.State != ConnectionState.Open) com.Connection.Open();
+
+            var dr = com.ExecuteReader();
+
+            while (dr.Read())
             {
-                
-                com.CommandType = CommandType.StoredProcedure;
-                com.CommandText = nameOfProcedure;
-                if (com.Connection.State != ConnectionState.Open) com.Connection.Open();
-
-                var dr = com.ExecuteReader();
-
-                while (dr.Read())
+                string[] tmp = new string[dr.FieldCount];
+                for (int i = 0; i < dr.FieldCount; i++)
                 {
-                    string[] tmp = new string[dr.FieldCount];
-                    for (int i = 0; i < dr.FieldCount; i++)
-                    {
-                        tmp[i] = dr.GetValue(i).ToString();
-                    }
-                    wynik.Add(tmp);
+                    tmp[i] = dr.GetValue(i).ToString();
                 }
-                dr.Close();
-                com.CommandType = CommandType.Text;
-                com.Parameters.Clear();
+                wynik.Add(tmp);
             }
+            dr.Close();
+            com.CommandType = CommandType.Text;
+            com.Parameters.Clear();
 
             return wynik;
         }
 
-        
+
     }
 }
