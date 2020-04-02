@@ -40,7 +40,7 @@ BEGIN
 	BEGIN TRAN
 	
 	DECLARE @IdStudies int = (SELECT IdStudy From Studies where Name=@Studies);
-	IF @Studies IS NULL
+	IF @IdStudies IS NULL
 		BEGIN
 			ROLLBACK;
 			SELECT 404;

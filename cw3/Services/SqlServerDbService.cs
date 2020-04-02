@@ -26,7 +26,7 @@ namespace cw3.Services
                     sqlT = con.BeginTransaction();
                     com.Transaction = sqlT;
                     com.Parameters.AddWithValue("studiesName", student.Studies);
-                    var wynik = UseProcedure("checkIfExistsStudies", com, sqlT);
+                    var wynik = UseProcedure("checkIfExistsStudies", com);
                     if (wynik.Count == 0) return new BadRequestResult();
 
                     com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indexNumber";
@@ -49,7 +49,7 @@ namespace cw3.Services
                     com.Parameters.Clear();
                     com.Parameters.AddWithValue("studiesName", student.Studies);
                     com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-                    wynik = UseProcedure("enrollStudent", com, sqlT);
+                    wynik = UseProcedure("enrollStudent", com);
 
                     enrollment.IdEnrollment = wynik[0][0];
                     enrollment.IdStudy = wynik[0][2];
@@ -80,23 +80,20 @@ namespace cw3.Services
                 com.Connection = con;
                 con.Open();
 
-                com.CommandType = CommandType.StoredProcedure;
-                com.CommandText = "PromoteStudents";
+                
                 com.Parameters.AddWithValue("Studies", studies.Studies);
                 com.Parameters.AddWithValue("Semester", studies.Semester);
+                var wynik = UseProcedure("PromoteStudents", com);
 
-                var dr = com.ExecuteReader();
-
-                dr.Read();
-                if (dr.FieldCount==1)
+                if (wynik[0][0].Equals("404"))
                 {
                     return new NotFoundResult();
                 }
-                enrollment.IdEnrollment = dr.GetString(0);
-                enrollment.Semester = dr.GetString(1);
-                enrollment.IdStudy = dr.GetString(2);
-                enrollment.StartDate = dr.GetString(3);
-                dr.Close();
+                enrollment.IdEnrollment = wynik[0][0];
+                enrollment.IdStudy = wynik[0][2];
+                enrollment.Semester = wynik[0][1];
+                enrollment.StartDate = wynik[0][3];
+
             }
 
             ObjectResult objectResult = new ObjectResult(enrollment);
@@ -106,7 +103,7 @@ namespace cw3.Services
         }
 
 
-        public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com, SqlTransaction sqlT)
+        public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com)
         {
             List<string[]> wynik = new List<string[]>();
 
