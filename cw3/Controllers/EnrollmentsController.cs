@@ -24,8 +24,7 @@ namespace cw3.Controllers
         [HttpPost("promotions")]
         public IActionResult PromoteSemester([FromBody] StudiesInfo studies, [FromServices] IStudentsDbService dbService)
         {
-            
-            return Ok();
+            return dbService.promoteStudents(studies);
         }
 
 

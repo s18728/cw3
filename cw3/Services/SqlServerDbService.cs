@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using cw3.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw3.Services
@@ -70,6 +71,39 @@ namespace cw3.Services
             return objectResult;
         }
 
+        public IActionResult promoteStudents(StudiesInfo studies)
+        {
+            Enrollment enrollment = new Enrollment();
+            using (SqlConnection con = new SqlConnection(sqlCon))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                con.Open();
+
+                com.CommandType = CommandType.StoredProcedure;
+                com.CommandText = "PromoteStudents";
+                com.Parameters.AddWithValue("Studies", studies.Studies);
+                com.Parameters.AddWithValue("Semester", studies.Semester);
+
+                var dr = com.ExecuteReader();
+
+                dr.Read();
+                if (dr.FieldCount==1)
+                {
+                    return new NotFoundResult();
+                }
+                enrollment.IdEnrollment = dr.GetString(0);
+                enrollment.Semester = dr.GetString(1);
+                enrollment.IdStudy = dr.GetString(2);
+                enrollment.StartDate = dr.GetString(3);
+                dr.Close();
+            }
+
+            ObjectResult objectResult = new ObjectResult(enrollment);
+            objectResult.StatusCode = 201;
+            return objectResult;
+
+        }
 
 
         public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com, SqlTransaction sqlT)
