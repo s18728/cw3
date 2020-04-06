@@ -1,0 +1,24 @@
+=================
+POST
+/api/enrollments
+{    "IndexNumber": "s16268",    "FirstName": "Andrzej",    "LastName": "Madwa",    "BirthDate": "30.03.1993",    "Studies": "Informatyka_Dzienne"}
+
+=================
+=================
+POST
+/api/enrollments
+
+
+=================
+=================
+POST
+/api/enrollments
+
+
+=================
+=================
+POST
+/api/enrollments
+{    "IndexNumber": "s16278",    "FirstName": "Andrzej",    "LastName": "Madwa",    "BirthDate": "30.03.1993",    "Studies": "Informatyka_Dzienne"}
+
+=================

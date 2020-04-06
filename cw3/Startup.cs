@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cw3.Middlewares;
 using cw3.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -62,6 +63,8 @@ namespace cw3
 
                 await next();
             });
+
+            app.UseMiddleware<Middleware>();
 
             app.UseHttpsRedirection();
 
