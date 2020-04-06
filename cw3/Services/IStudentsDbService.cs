@@ -13,5 +13,7 @@ namespace cw3.Services
 
         public IActionResult promoteStudents(StudiesInfo studies);
 
+        public bool checkIfStudentExists(string indeks);
+
     }
 }

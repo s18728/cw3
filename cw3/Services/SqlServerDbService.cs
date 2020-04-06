@@ -102,6 +102,31 @@ namespace cw3.Services
 
         }
 
+        public bool checkIfStudentExists(string indeks)
+        {
+            using (SqlConnection con = new SqlConnection(sqlCon))
+            using (SqlCommand com = new SqlCommand())
+            {
+                com.Connection = con;
+                con.Open();
+                com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indeks";
+                com.Parameters.AddWithValue("indeks", indeks);
+
+                var dr =com.ExecuteReader();
+                dr.Read();
+                if (dr.HasRows)
+                {
+                    dr.Close();
+                    return true;
+                }
+                else
+                {
+                    dr.Close();
+                    return false;
+                }
+            }
+        }
+
 
         public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com)
         {
