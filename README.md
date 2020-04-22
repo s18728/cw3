@@ -1,3 +1,3 @@
-# cw3, 4 i 5
-APBD Ćwiczenia 3, 4 i 5
+# Ćwiczenia 3-7
+APBD Ćwiczenia 3, 4, 5, 6 i 7
 SQL i JSON w odpowiednich folderach
