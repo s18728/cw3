@@ -1,0 +1,13 @@
+//Przykładowy login
+
+{
+    "Login" : "s1234",
+    "Password" : "pass1234"
+}
+
+//login "admina" (sprawdzenie roli employee
+
+{
+    "Login" : "admin",
+    "Password" : "admin"
+}
