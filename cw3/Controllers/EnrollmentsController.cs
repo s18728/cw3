@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using cw3.Models;
+﻿using cw3.Models;
 using cw3.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw3.Controllers
 {
     [Route("api/enrollments")]
+    [Authorize(Roles = "employee")]
     [ApiController]
     public class EnrollmentsController : ControllerBase
     {

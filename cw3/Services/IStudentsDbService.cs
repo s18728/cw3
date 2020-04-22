@@ -15,5 +15,23 @@ namespace cw3.Services
 
         public bool checkIfStudentExists(string indeks);
 
+        public string getStudentsString();
+
+        public Student getStudent(string indeks);
+
+        public string getEnrollments(string id);
+
+        public string setRefreshToken(string indeks, string token);
+
+        public Student getStudentFromRefreshToken(string token);
+
+        public void setSalt(string indeks, string salt);
+
+        public string getSalt(string indeks);
+
+        public void setPassword(string indeks, string pass);
+
+        public void hashAllPasswords();
+
     }
 }

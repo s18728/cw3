@@ -7,8 +7,6 @@ namespace cw3
 {
     public class Student
     {
-        public int IdStudent { get; set; }
-
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
@@ -20,5 +18,12 @@ namespace cw3
         public string Studies { get; set; }
 
         public string IndexNumber { get; set; }
+
+        public string Password { get; set; }
+
+        public override string ToString()
+        {
+            return FirstName + "   " + LastName + "   " + Studies + "   " + Semester;
+        }
     }
 }

@@ -22,3 +22,441 @@ POST
 {    "IndexNumber": "s16278",    "FirstName": "Andrzej",    "LastName": "Madwa",    "BirthDate": "30.03.1993",    "Studies": "Informatyka_Dzienne"}
 
 =================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/favicon.ico
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/s
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "s1234"    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/enrollments
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/enrollments
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/enrollments
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "admin",    "Password" : "admin"}
+
+=================
+=================
+POST
+/api/enrollments
+{    "Login" : "admin",    "Password" : "admin"}
+
+=================
+=================
+POST
+/api/enrollments
+{    "Login" : "admin",    "Password" : "admin"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/login
+{    "Login" : "",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/login
+{    "Login" : "",    "Password" : ""}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/ref-token/db595743-02f4-464b-9231-69de79d2391b
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/ref-token/db595743-02f4-464b-9231-69de79d2391b
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/ref-token/db595743-02f4-464b-9231-69de79d2391b
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/ref-token/db595743-02f4-464b-9231-69de79d2391b
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/ref-token/db595743-02f4-464b-9231-69de79d2391b
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/ref-token/db595743-02f4-464b-9231-69de79d2391b
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/ref-token/db595743-02f4-464b-9231-69de79d23912
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/ref-token/e1bcec19-0caa-43f3-9fd7-8b7f7a95bba8
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students/
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students/
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students/
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students/
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+GET
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================
+=================
+POST
+/api/students/login
+{    "Login" : "s1234",    "Password" : "pass1234"}
+
+=================

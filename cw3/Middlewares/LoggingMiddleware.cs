@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
 namespace cw3.Middlewares
 {
-    public class Middleware
+    public class LoggingMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public Middleware(RequestDelegate next)
+        public LoggingMiddleware(RequestDelegate next)
         {
             _next = next;
         }
