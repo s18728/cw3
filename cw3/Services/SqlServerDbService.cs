@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
-using cw3.Models;
-using cw3.Security;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw3.Services
@@ -44,11 +42,6 @@ namespace cw3.Services
                     com.Parameters.Clear();
                     com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
 
-                    var salt = Salter.CreateSalt();
-                    var pass = Salter.CreateHash("pas" + student.IndexNumber, salt);
-
-                    com.Parameters.AddWithValue("pass",pass);
-                    com.Parameters.AddWithValue("salt", salt);
                     com.Parameters.AddWithValue("name", student.FirstName);
                     com.Parameters.AddWithValue("lname", student.LastName);
                     com.Parameters.AddWithValue("bdate", student.BirthDate);
@@ -135,6 +128,7 @@ namespace cw3.Services
             }
         }
 
+        //TODO do przebudowy
         public string getStudentsString()
         {
             StringBuilder students = new StringBuilder();
@@ -154,9 +148,7 @@ namespace cw3.Services
                     var st = new Student();
                     st.FirstName = dr["FirstName"].ToString();
                     st.LastName = dr["LastName"].ToString();
-                    st.BirthDate = dr["BirthDate"].ToString();
-                    st.Semester = dr["Semester"].ToString();
-                    st.Studies = dr["Name"].ToString();
+                    st.BirthDate = DateTime.Parse(dr["BirthDate"].ToString());
                     st.IndexNumber = dr["IndexNumber"].ToString();
                     students.AppendLine(st.ToString());
                 }
@@ -166,6 +158,7 @@ namespace cw3.Services
             return students.ToString();
         }
 
+        //TODO do przebudowy
         public Student getStudent(string indeks)
         {
             var st = new Student();
@@ -198,6 +191,8 @@ namespace cw3.Services
             return st;
         }
 
+
+        //TODO do przebudowy
         public string getEnrollments(string id)
         {
             StringBuilder enrollments = new StringBuilder();
@@ -223,124 +218,6 @@ namespace cw3.Services
                 }
             }
             return enrollments.ToString();
-        }
-
-        public string setRefreshToken(string indeks, string token)
-        {
-            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText =
-                    "UPDATE Student SET RefToken = @token WHERE Student.IndexNumber = @indeks";
-                com.Parameters.AddWithValue("indeks", indeks);
-                com.Parameters.AddWithValue("token", token);
-
-                con.Open();
-                com.ExecuteNonQuery();
-            }
-
-            return token;
-        }
-
-        public Student getStudentFromRefreshToken(string token)
-        {
-            using (SqlConnection con = new SqlConnection(sqlCon))
-            using (SqlCommand com = new SqlCommand())
-            {
-                com.Connection = con;
-                con.Open();
-                com.CommandText = "SELECT IndexNumber, RefToken FROM Student WHERE Student.RefToken = @token";
-                com.Parameters.AddWithValue("token", token);
-
-                var dr = com.ExecuteReader();
-                dr.Read();
-                if (dr.HasRows)
-                {
-                    return getStudent(dr["IndexNumber"].ToString());
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        public void setSalt(string indeks, string salt)
-        {
-            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText =
-                    "UPDATE Student SET Salt = @salt WHERE Student.IndexNumber = @indeks";
-                com.Parameters.AddWithValue("indeks", indeks);
-                com.Parameters.AddWithValue("salt", salt);
-
-                con.Open();
-                com.ExecuteNonQuery();
-            }
-        }
-
-        public string getSalt(string indeks)
-        {
-            using (SqlConnection con = new SqlConnection(sqlCon))
-            using (SqlCommand com = new SqlCommand())
-            {
-                com.Connection = con;
-                con.Open();
-                com.CommandText = "SELECT IndexNumber, Salt FROM Student WHERE Student.IndexNumber = @indeks";
-                com.Parameters.AddWithValue("indeks", indeks);
-
-                var dr = com.ExecuteReader();
-                dr.Read();
-                if (dr.HasRows)
-                {
-                    return dr["Salt"].ToString();
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
-
-        public void setPassword(string indeks, string pass)
-        {
-            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText =
-                    "UPDATE Student SET Password = @pass WHERE Student.IndexNumber = @indeks";
-                com.Parameters.AddWithValue("indeks", indeks);
-                com.Parameters.AddWithValue("pass", pass);
-
-                con.Open();
-                com.ExecuteNonQuery();
-            }
-        }
-
-        public void hashAllPasswords()
-        {
-            Console.Write("hello");
-            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText = "SELECT IndexNumber, Password FROM Student ";
-
-                con.Open();
-                var dr = com.ExecuteReader();
-                while (dr.Read())
-                {
-                    var salt = Salter.CreateSalt();
-                    setSalt(dr["IndexNumber"].ToString(), salt);
-                    var pass = Salter.CreateHash(dr["Password"].ToString(), salt);
-                    setPassword(dr["IndexNumber"].ToString(), pass);
-                }
-                dr.Close();
-            }
         }
 
 

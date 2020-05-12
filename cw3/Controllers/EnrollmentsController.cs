@@ -1,5 +1,4 @@
-﻿using cw3.Models;
-using cw3.Services;
+﻿using cw3.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +9,8 @@ namespace cw3.Controllers
     [ApiController]
     public class EnrollmentsController : ControllerBase
     {
+
+        //TODO change to DTOs and return type
         [HttpPost]
         public IActionResult EnrollStudent([FromBody]Student student, [FromServices]IStudentsDbService dbService)
         {
@@ -18,6 +19,9 @@ namespace cw3.Controllers
 
             return dbService.enrollStudent(student);
         }
+
+        
+        //TODO DTOs and return type
         [HttpPost("promotions")]
         public IActionResult PromoteSemester([FromBody] StudiesInfo studies, [FromServices] IStudentsDbService dbService)
         {
