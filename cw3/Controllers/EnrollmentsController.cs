@@ -1,31 +1,45 @@
-﻿using cw3.Services;
+﻿using cw3.DTOs;
+using cw3.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw3.Controllers
 {
     [Route("api/enrollments")]
-    [Authorize(Roles = "employee")]
     [ApiController]
     public class EnrollmentsController : ControllerBase
     {
 
-        //TODO change to DTOs and return type
-        [HttpPost]
-        public IActionResult EnrollStudent([FromBody]Student student, [FromServices]IStudentsDbService dbService)
-        {
-            if (student.FirstName == null || student.LastName == null || student.IndexNumber == null
-                || student.BirthDate == null || student.Studies == null) return BadRequest();
+        // //TODO change to DTOs and return type
+        // [HttpPost]
+        // public IActionResult EnrollStudent([FromBody]Student student, [FromServices]IDbService dbService)
+        // {
+        //     if (student.FirstName == null || student.LastName == null || student.IndexNumber == null
+        //         || student.BirthDate == null || student.Studies == null) return BadRequest();
+        //
+        //     return dbService.enrollStudent(student);
+        // }
 
-            return dbService.enrollStudent(student);
-        }
-
-        
-        //TODO DTOs and return type
         [HttpPost("promotions")]
-        public IActionResult PromoteSemester([FromBody] StudiesInfo studies, [FromServices] IStudentsDbService dbService)
-        {
-            return dbService.promoteStudents(studies);
+        public IActionResult PromoteSemester([FromBody] PromoteRequestDTO request, [FromServices] IDbService dbService)
+        { 
+            var newEnrollment = dbService.promoteStudents(request.StudiesId, request.Semester);
+
+            if (newEnrollment == null)
+            {
+                return BadRequest();
+            }
+            else
+            {
+                var response = new PromoteResponseDTO
+                {
+                    Semester = newEnrollment.Semester,
+                    IdStudy = newEnrollment.IdStudy,
+                    StartDate = newEnrollment.StartDate,
+                    IdEnrollment = newEnrollment.IdEnrollment
+                };
+                return Ok(response);
+            }
         }
 
 

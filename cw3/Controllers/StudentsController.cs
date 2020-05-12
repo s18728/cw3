@@ -1,12 +1,9 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using cw3.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
 namespace cw3.Controllers
 {
@@ -14,32 +11,49 @@ namespace cw3.Controllers
     [ApiController]
     public class StudentsController : ControllerBase
     {
-        private IStudentsDbService _dbService;
-        private IConfiguration _configuration;
+        private IDbService _dbService;
 
-        public StudentsController(IStudentsDbService dbService, IConfiguration configuration)
+        public StudentsController(IDbService dbService)
         {
             _dbService = dbService;
-            _configuration = configuration;
         }
 
 
         [HttpGet]
-        [Authorize(Roles = "student,employee")]
         public IActionResult GetStudents()
         {
-            //_dbService.hashAllPasswords();
             var students = _dbService.getStudentsString();
 
             return Ok(students);
         }
 
-        [HttpGet("{id}")]
-        [Authorize(Roles = "student,employee")]
-        public IActionResult GetStudentEnrollments(string id)
+        [HttpPost]
+        [Route("modify")]
+        public IActionResult ModifyStudent([FromBody] Student student)
         {
-            var enrollments = _dbService.getEnrollments(id);
-            return Ok(enrollments);
+            if (_dbService.modifyStudent(student))
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+
+        }
+
+        [HttpDelete]
+        [Route("delete/{eska}")]
+        public IActionResult DeleteStudent([FromRoute] string eska)
+        {
+            if (_dbService.removeStudent(eska))
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
     }
     

@@ -2,251 +2,194 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace cw3.Services
 {
-    public class SqlServerDbService : IStudentsDbService
+    public class SqlServerDbService : IDbService
     {
-        private string sqlCon = "Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True";
-
-        public IActionResult enrollStudent(Student student)
+        private s18728Context _dbContext;
+        public SqlServerDbService([FromServices] DbContext dbContext)
         {
-            Enrollment enrollment = new Enrollment();
-
-            using (var con = new SqlConnection(sqlCon))
-            using (var com = new SqlCommand())
-            {
-                SqlTransaction sqlT = null;
-                try
-                {
-                    com.Connection = con;
-                    con.Open();
-                    sqlT = con.BeginTransaction();
-                    com.Transaction = sqlT;
-                    com.Parameters.AddWithValue("studiesName", student.Studies);
-                    var wynik = UseProcedure("checkIfExistsStudies", com);
-                    if (wynik.Count == 0) return new BadRequestResult();
-
-                    com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indexNumber";
-                    com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-
-                    var dr = com.ExecuteReader();
-                    if (dr.Read()) return new BadRequestResult();
-                    dr.Close();
-
-                    com.CommandText = "DECLARE @datetmp date = PARSE(@bdate as date USING 'en-GB');" +
-                                      " INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment, Password, Salt)" +
-                                      " VALUES (@indexNumber, @name, @lname, @datetmp, '1', @pass, @salt)";
-                    com.Parameters.Clear();
-                    com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-
-                    com.Parameters.AddWithValue("name", student.FirstName);
-                    com.Parameters.AddWithValue("lname", student.LastName);
-                    com.Parameters.AddWithValue("bdate", student.BirthDate);
-                    com.ExecuteNonQuery();
-
-                    com.Parameters.Clear();
-                    com.Parameters.AddWithValue("studiesName", student.Studies);
-                    com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-                    wynik = UseProcedure("enrollStudent", com);
-
-                    enrollment.IdEnrollment = wynik[0][0];
-                    enrollment.IdStudy = wynik[0][2];
-                    enrollment.Semester = wynik[0][1];
-                    enrollment.StartDate = wynik[0][3];
-
-                    sqlT.Commit();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    sqlT.Rollback();
-                    return new BadRequestResult();
-                }
-            }
-
-            ObjectResult objectResult = new ObjectResult(enrollment);
-            objectResult.StatusCode = 201;
-            return objectResult;
+            this._dbContext = (s18728Context)dbContext;
         }
 
-        public IActionResult promoteStudents(StudiesInfo studies)
+        // public IActionResult enrollStudent(Student student)
+        // {
+        //     Enrollment enrollment = new Enrollment();
+        //
+        //     using (var con = new SqlConnection(sqlCon))
+        //     using (var com = new SqlCommand())
+        //     {
+        //         SqlTransaction sqlT = null;
+        //         try
+        //         {
+        //             com.Connection = con;
+        //             con.Open();
+        //             sqlT = con.BeginTransaction();
+        //             com.Transaction = sqlT;
+        //             com.Parameters.AddWithValue("studiesName", student.Studies);
+        //             var wynik = UseProcedure("checkIfExistsStudies", com);
+        //             if (wynik.Count == 0) return new BadRequestResult();
+        //
+        //             com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indexNumber";
+        //             com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
+        //
+        //             var dr = com.ExecuteReader();
+        //             if (dr.Read()) return new BadRequestResult();
+        //             dr.Close();
+        //
+        //             com.CommandText = "DECLARE @datetmp date = PARSE(@bdate as date USING 'en-GB');" +
+        //                               " INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment, Password, Salt)" +
+        //                               " VALUES (@indexNumber, @name, @lname, @datetmp, '1', @pass, @salt)";
+        //             com.Parameters.Clear();
+        //             com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
+        //
+        //             com.Parameters.AddWithValue("name", student.FirstName);
+        //             com.Parameters.AddWithValue("lname", student.LastName);
+        //             com.Parameters.AddWithValue("bdate", student.BirthDate);
+        //             com.ExecuteNonQuery();
+        //
+        //             com.Parameters.Clear();
+        //             com.Parameters.AddWithValue("studiesName", student.Studies);
+        //             com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
+        //             wynik = UseProcedure("enrollStudent", com);
+        //
+        //             enrollment.IdEnrollment = wynik[0][0];
+        //             enrollment.IdStudy = wynik[0][2];
+        //             enrollment.Semester = wynik[0][1];
+        //             enrollment.StartDate = wynik[0][3];
+        //
+        //             sqlT.Commit();
+        //         }
+        //         catch (Exception e)
+        //         {
+        //             Console.WriteLine(e);
+        //             sqlT.Rollback();
+        //             return new BadRequestResult();
+        //         }
+        //     }
+        //
+        //     ObjectResult objectResult = new ObjectResult(enrollment);
+        //     objectResult.StatusCode = 201;
+        //     return objectResult;
+        // }
+
+        public Enrollment promoteStudents(int studiesId, int semester)
         {
-            Enrollment enrollment = new Enrollment();
-            using (SqlConnection con = new SqlConnection(sqlCon))
-            using (SqlCommand com = new SqlCommand())
+            try
             {
-                com.Connection = con;
-                con.Open();
+                var studiesGot = _dbContext.Studies.Single(s => s.IdStudy == studiesId);
 
-                
-                com.Parameters.AddWithValue("Studies", studies.Studies);
-                com.Parameters.AddWithValue("Semester", studies.Semester);
-                var wynik = UseProcedure("PromoteStudents", com);
+                var oldEnrollment =
+                    _dbContext.Enrollment.Single(e => e.IdStudy == studiesGot.IdStudy && e.Semester == semester);
 
-                if (wynik[0][0].Equals("404"))
+                var newEnrollment =
+                    _dbContext.Enrollment.SingleOrDefault(
+                        e => e.IdStudy == studiesGot.IdStudy && e.Semester == semester + 1);
+
+                if (newEnrollment == null)
                 {
-                    return new NotFoundResult();
+                    var newId = _dbContext.Enrollment.Max(e => e.IdEnrollment) + 1;
+                    newEnrollment = new Enrollment
+                    {
+                        IdEnrollment = newId,
+                        Semester = semester + 1,
+                        IdStudy = studiesGot.IdStudy,
+                        StartDate = DateTime.Now
+                    };
+                    _dbContext.Enrollment.Add(newEnrollment);
+                    _dbContext.SaveChanges();
                 }
-                enrollment.IdEnrollment = wynik[0][0];
-                enrollment.IdStudy = wynik[0][2];
-                enrollment.Semester = wynik[0][1];
-                enrollment.StartDate = wynik[0][3];
 
+                var studentsToUpdate = _dbContext.Student.Where(s => s.IdEnrollment == oldEnrollment.IdEnrollment).ToList();
+
+                foreach (Student student in studentsToUpdate)
+                {
+                    student.IdEnrollment = newEnrollment.IdEnrollment;
+                }
+
+                _dbContext.SaveChanges();
+
+                return newEnrollment;
             }
-
-            ObjectResult objectResult = new ObjectResult(enrollment);
-            objectResult.StatusCode = 201;
-            return objectResult;
-
-        }
-
-        public bool checkIfStudentExists(string indeks)
-        {
-            using (SqlConnection con = new SqlConnection(sqlCon))
-            using (SqlCommand com = new SqlCommand())
+            catch (Exception e)
             {
-                com.Connection = con;
-                con.Open();
-                com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indeks";
-                com.Parameters.AddWithValue("indeks", indeks);
-
-                var dr =com.ExecuteReader();
-                dr.Read();
-                if (dr.HasRows)
-                {
-                    dr.Close();
-                    return true;
-                }
-                else
-                {
-                    dr.Close();
-                    return false;
-                }
+                Console.WriteLine(e);
+                return null;
             }
         }
 
-        //TODO do przebudowy
         public string getStudentsString()
         {
-            StringBuilder students = new StringBuilder();
-            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText =
-                    "SELECT IndexNumber, FirstName, LastName, BirthDate, Semester, Name FROM Student " +
-                    "INNER JOIN Enrollment ON Student.IdEnrollment = Enrollment.IdEnrollment " +
-                    "INNER JOIN Studies ON Studies.IdStudy = Enrollment.IdStudy";
+            StringBuilder studentsSb = new StringBuilder();
 
-                con.Open();
-                var dr = com.ExecuteReader();
-                while (dr.Read())
+            var students = _dbContext.Student.ToList();
+
+            foreach (var student in students)
+            {
+                studentsSb.Append(student.IndexNumber).Append(" ").Append(student.FirstName).Append(" ")
+                    .Append(student.LastName).AppendLine();
+            }
+
+            return studentsSb.ToString();
+        }
+
+        public bool modifyStudent(Student studentNewValue)
+        {
+            try
+            {
+                var student = _dbContext.Student.Single(s => s.IndexNumber.Equals(studentNewValue.IndexNumber));
+
+                if (studentNewValue.FirstName != null)
                 {
-                    var st = new Student();
-                    st.FirstName = dr["FirstName"].ToString();
-                    st.LastName = dr["LastName"].ToString();
-                    st.BirthDate = DateTime.Parse(dr["BirthDate"].ToString());
-                    st.IndexNumber = dr["IndexNumber"].ToString();
-                    students.AppendLine(st.ToString());
+                    student.FirstName = studentNewValue.FirstName;
                 }
 
-            }
-
-            return students.ToString();
-        }
-
-        //TODO do przebudowy
-        public Student getStudent(string indeks)
-        {
-            var st = new Student();
-            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText =
-                    "SELECT IndexNumber, Password, FirstName, LastName, BirthDate, Semester, Name FROM Student " +
-                    "INNER JOIN Enrollment ON Student.IdEnrollment = Enrollment.IdEnrollment " +
-                    "INNER JOIN Studies ON Studies.IdStudy = Enrollment.IdStudy WHERE Student.IndexNumber = @indeks";
-
-                com.Parameters.AddWithValue("indeks", indeks);
-
-                con.Open();
-                var dr = com.ExecuteReader();
-                dr.Read();
-
-
-                st.FirstName = dr["FirstName"].ToString();
-                st.LastName = dr["LastName"].ToString();
-                st.BirthDate = dr["BirthDate"].ToString();
-                st.Semester = dr["Semester"].ToString();
-                st.Studies = dr["Name"].ToString();
-                st.IndexNumber = dr["IndexNumber"].ToString();
-                st.Password = dr["Password"].ToString();
-
-            }
-
-            return st;
-        }
-
-
-        //TODO do przebudowy
-        public string getEnrollments(string id)
-        {
-            StringBuilder enrollments = new StringBuilder();
-
-            using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s18728;Integrated Security=True"))
-            using (var com = new SqlCommand())
-            {
-                com.Connection = con;
-                com.CommandText =
-                    "SELECT * FROM Enrollment INNER JOIN Student ON Enrollment.IdEnrollment = Student.IdEnrollment WHERE Student.IndexNumber = @id";
-                com.Parameters.AddWithValue("id", id);
-
-                con.Open();
-                var dr = com.ExecuteReader();
-                while (dr.Read())
+                if (studentNewValue.LastName != null)
                 {
-                    var en = new Enrollment();
-                    en.IdEnrollment = dr["IdEnrollment"].ToString();
-                    en.Semester = dr["Semester"].ToString();
-                    en.IdStudy = dr["IdStudy"].ToString();
-                    en.StartDate = dr["StartDate"].ToString();
-                    enrollments.AppendLine(en.ToString());
+                    student.LastName = studentNewValue.LastName;
                 }
-            }
-            return enrollments.ToString();
-        }
 
-
-        public List<string[]> UseProcedure(string nameOfProcedure, SqlCommand com)
-        {
-            List<string[]> wynik = new List<string[]>();
-
-            com.CommandType = CommandType.StoredProcedure;
-            com.CommandText = nameOfProcedure;
-            if (com.Connection.State != ConnectionState.Open) com.Connection.Open();
-
-            var dr = com.ExecuteReader();
-
-            while (dr.Read())
-            {
-                string[] tmp = new string[dr.FieldCount];
-                for (int i = 0; i < dr.FieldCount; i++)
+                if (studentNewValue.IdEnrollment != 0)
                 {
-                    tmp[i] = dr.GetValue(i).ToString();
+                    student.IdEnrollment = studentNewValue.IdEnrollment;
                 }
-                wynik.Add(tmp);
-            }
-            dr.Close();
-            com.CommandType = CommandType.Text;
-            com.Parameters.Clear();
 
-            return wynik;
+                if (studentNewValue.BirthDate != null)
+                {
+                    student.BirthDate = studentNewValue.BirthDate;
+                }
+
+                _dbContext.SaveChanges();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+            
         }
 
-
+        public bool removeStudent(string eska)
+        {
+            try
+            {
+                var student = _dbContext.Student.Single(s => s.IndexNumber.Equals(eska));
+                _dbContext.Student.Remove(student);
+                _dbContext.SaveChanges();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+            
+        }
     }
 }

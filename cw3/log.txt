@@ -460,3 +460,228 @@ POST
 {    "Login" : "s1234",    "Password" : "pass1234"}
 
 =================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/students
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/favicon.ico
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+POST
+/api/students/modify
+{
+	IndexNumber : "s1234"
+	FirstName : "Waclaw"
+}
+
+=================
+=================
+POST
+/api/students/modify
+{
+	IndexNumber : "s1234",
+	FirstName : "Waclaw"
+}
+
+=================
+=================
+POST
+/api/students/modify
+{
+	"IndexNumber" : "s1234",
+	"FirstName" : "Waclaw"
+}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/modify
+{
+	"IndexNumber" : "s1234",
+	"FirstName" : "Waclaw"
+}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/modify
+{
+	"IndexNumber" : "s1234",
+	"FirstName" : "Waclaw"
+}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/students/modify
+{
+	"IndexNumber" : "s1234",
+	"FirstName" : "Waclaw"
+}
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+DELETE
+/api/students/delete/s1234
+{
+	"IndexNumber" : "s1234",
+	"FirstName" : "Waclaw"
+}
+
+=================
+=================
+GET
+/api/students
+
+
+=================
+=================
+POST
+/api/enrollments/promotions
+{
+	"StudiesId" : "2",
+	"Semester" : "2"
+}
+
+=================
+=================
+POST
+/api/enrollments/promotions
+{
+	"StudiesId" : 2,
+	"Semester" : 2
+}
+
+=================
+=================
+POST
+/api/enrollments/promotions
+{
+	"StudiesId" : 1,
+	"Semester" : 1
+}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/enrollments/promotions
+{
+	"StudiesId" : 1,
+	"Semester" : 1
+}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/enrollments/promotions
+{
+	"StudiesId" : 1,
+	"Semester" : 1
+}
+
+=================
+=================
+GET
+/
+
+
+=================
+=================
+POST
+/api/enrollments/promotions
+{
+	"StudiesId" : 1,
+	"Semester" : 1
+}
+
+=================
