@@ -7,11 +7,13 @@
   "StudyName": "Informatyka_Dzienne"
 }
 
-//Przyklad do Promote{
-"StudiesId": 1, "Semester": 1 }
+//Przyklad do Promote
+{
+"StudiesId": 1, 
+"Semester": 1 
+}
 
 //Przyklad do ModifyStudent
-
 {
   "IndexNumber": "s1234",
   "FirstName": "Waclaw"
