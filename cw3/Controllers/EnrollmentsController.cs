@@ -1,6 +1,5 @@
 ﻿using cw3.DTOs;
 using cw3.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace cw3.Controllers
