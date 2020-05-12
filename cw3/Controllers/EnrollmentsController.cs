@@ -8,18 +8,33 @@ namespace cw3.Controllers
     [ApiController]
     public class EnrollmentsController : ControllerBase
     {
+        [HttpPost]
+        [Route("enroll")]
+        public IActionResult EnrollStudent([FromBody]EnrollStudentRequestDTO request, [FromServices]IDbService dbService)
+        {
+            Student studentToEnroll = new Student
+            {
+                IndexNumber = request.IndexNumber,
+                LastName = request.LastName,
+                FirstName = request.FirstName,
+                BirthDate = request.BirthDate
+            };
 
-        // //TODO change to DTOs and return type
-        // [HttpPost]
-        // public IActionResult EnrollStudent([FromBody]Student student, [FromServices]IDbService dbService)
-        // {
-        //     if (student.FirstName == null || student.LastName == null || student.IndexNumber == null
-        //         || student.BirthDate == null || student.Studies == null) return BadRequest();
-        //
-        //     return dbService.enrollStudent(student);
-        // }
+            Enrollment tmp = dbService.enrollStudent(studentToEnroll, request.StudyName);
+            if (tmp == null) return BadRequest();
 
-        [HttpPost("promotions")]
+            EnrollStudentResponseDTO response = new EnrollStudentResponseDTO
+            {
+                Semester = tmp.Semester,
+                IdStudy = tmp.IdStudy,
+                StartDate = tmp.StartDate,
+                IdEnrollment = tmp.IdEnrollment
+            };
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("promotions")]
         public IActionResult PromoteSemester([FromBody] PromoteRequestDTO request, [FromServices] IDbService dbService)
         { 
             var newEnrollment = dbService.promoteStudents(request.StudiesId, request.Semester);

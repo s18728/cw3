@@ -2,8 +2,7 @@
 {
     public interface IDbService
     {
-        //TODO to change
-        // public IActionResult enrollStudent(Student student);
+        public Enrollment enrollStudent(Student studentToEnroll, string studiesName);
 
         public Enrollment promoteStudents(int studiesId, int semester);
 

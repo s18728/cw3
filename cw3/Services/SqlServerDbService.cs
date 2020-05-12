@@ -9,71 +9,73 @@ namespace cw3.Services
     public class SqlServerDbService : IDbService
     {
         private s18728Context _dbContext;
+
         public SqlServerDbService([FromServices] DbContext dbContext)
         {
-            this._dbContext = (s18728Context)dbContext;
+            this._dbContext = (s18728Context) dbContext;
         }
 
-        // public IActionResult enrollStudent(Student student)
-        // {
-        //     Enrollment enrollment = new Enrollment();
-        //
-        //     using (var con = new SqlConnection(sqlCon))
-        //     using (var com = new SqlCommand())
-        //     {
-        //         SqlTransaction sqlT = null;
-        //         try
-        //         {
-        //             com.Connection = con;
-        //             con.Open();
-        //             sqlT = con.BeginTransaction();
-        //             com.Transaction = sqlT;
-        //             com.Parameters.AddWithValue("studiesName", student.Studies);
-        //             var wynik = UseProcedure("checkIfExistsStudies", com);
-        //             if (wynik.Count == 0) return new BadRequestResult();
-        //
-        //             com.CommandText = "SELECT 1 FROM Student WHERE Student.IndexNumber = @indexNumber";
-        //             com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-        //
-        //             var dr = com.ExecuteReader();
-        //             if (dr.Read()) return new BadRequestResult();
-        //             dr.Close();
-        //
-        //             com.CommandText = "DECLARE @datetmp date = PARSE(@bdate as date USING 'en-GB');" +
-        //                               " INSERT INTO Student(IndexNumber, FirstName, LastName, BirthDate, IdEnrollment, Password, Salt)" +
-        //                               " VALUES (@indexNumber, @name, @lname, @datetmp, '1', @pass, @salt)";
-        //             com.Parameters.Clear();
-        //             com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-        //
-        //             com.Parameters.AddWithValue("name", student.FirstName);
-        //             com.Parameters.AddWithValue("lname", student.LastName);
-        //             com.Parameters.AddWithValue("bdate", student.BirthDate);
-        //             com.ExecuteNonQuery();
-        //
-        //             com.Parameters.Clear();
-        //             com.Parameters.AddWithValue("studiesName", student.Studies);
-        //             com.Parameters.AddWithValue("indexNumber", student.IndexNumber);
-        //             wynik = UseProcedure("enrollStudent", com);
-        //
-        //             enrollment.IdEnrollment = wynik[0][0];
-        //             enrollment.IdStudy = wynik[0][2];
-        //             enrollment.Semester = wynik[0][1];
-        //             enrollment.StartDate = wynik[0][3];
-        //
-        //             sqlT.Commit();
-        //         }
-        //         catch (Exception e)
-        //         {
-        //             Console.WriteLine(e);
-        //             sqlT.Rollback();
-        //             return new BadRequestResult();
-        //         }
-        //     }
-        //
-        //     ObjectResult objectResult = new ObjectResult(enrollment);
-        //     objectResult.StatusCode = 201;
-        //     return objectResult;
-        // }
+        public Enrollment enrollStudent(Student studentToEnroll, string studiesName)
+        {
+            try
+            {
+                var studiesExists = _dbContext.Studies.Any(s => s.Name.Equals(studiesName));
+                if (!studiesExists)
+                {
+                    return null;
+                }
+
+                var studentAlreadyExists =
+                    _dbContext.Student.Any(s => s.IndexNumber.Equals(studentToEnroll.IndexNumber));
+
+                if (studentAlreadyExists)
+                {
+                    return null;
+                }
+
+                Student toAddStudent = new Student
+                {
+                    IndexNumber = studentToEnroll.IndexNumber,
+                    LastName = studentToEnroll.LastName,
+                    BirthDate = studentToEnroll.BirthDate,
+                    FirstName = studentToEnroll.FirstName,
+                    IdEnrollment = 1
+                };
+
+                _dbContext.Student.Add(toAddStudent);
+                _dbContext.SaveChanges();
+
+
+                int idStudy = _dbContext.Studies.Single(s => s.Name.Equals(studiesName)).IdStudy;
+                int idEnrollment = _dbContext.Enrollment.Where(e => e.Semester == 1 && e.IdStudy == idStudy)
+                    .OrderByDescending(e => e.StartDate).First().IdEnrollment;
+
+                if (idEnrollment == 0)
+                {
+                    idEnrollment = _dbContext.Enrollment.Max(e => e.IdEnrollment) + 1;
+                    Enrollment newEnrollment = new Enrollment
+                    {
+                        IdEnrollment = idEnrollment,
+                        Semester = 1,
+                        IdStudy = idStudy,
+                        StartDate = DateTime.Now
+                    };
+                    _dbContext.Enrollment.Add(newEnrollment);
+                    _dbContext.SaveChanges();
+                }
+
+                toAddStudent.IdEnrollment = idEnrollment;
+                _dbContext.SaveChanges();
+
+                var resp = _dbContext.Enrollment.Single(e => e.IdEnrollment == idEnrollment);
+                return resp;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return null;
+            }
+        }
 
         public Enrollment promoteStudents(int studiesId, int semester)
         {
@@ -102,7 +104,8 @@ namespace cw3.Services
                     _dbContext.SaveChanges();
                 }
 
-                var studentsToUpdate = _dbContext.Student.Where(s => s.IdEnrollment == oldEnrollment.IdEnrollment).ToList();
+                var studentsToUpdate = _dbContext.Student.Where(s => s.IdEnrollment == oldEnrollment.IdEnrollment)
+                    .ToList();
 
                 foreach (Student student in studentsToUpdate)
                 {
@@ -170,7 +173,6 @@ namespace cw3.Services
                 Console.WriteLine(e);
                 return false;
             }
-            
         }
 
         public bool removeStudent(string eska)
@@ -186,7 +188,6 @@ namespace cw3.Services
             {
                 return false;
             }
-            
         }
     }
 }

@@ -1,0 +1,26 @@
+//Przyklad do EnrollStudent
+{
+  "IndexNumber": "s1899",
+  "FirstName": "Aldona",
+  "LastName": "Golonka",
+  "BirthDate": "1999-09-08",
+  "StudyName": "Informatyka_Dzienne"
+}
+
+//Przyklad do Promote{
+"StudiesId": 1, "Semester": 1 }
+
+//Przyklad do ModifyStudent
+
+{
+  "IndexNumber": "s1234",
+  "FirstName": "Waclaw"
+}
+
+//lub np
+
+{
+  "IndexNumber": "s1234",
+  "LastName": "Chrobry",
+  "BirthDate": "1999-09-08" 
+}
